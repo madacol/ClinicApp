@@ -10,6 +10,17 @@ const formatDateForInput = (dateStr) => {
   return date.toISOString().split("T")[0];
 };
 
+// Funcion para formatear fechas spanish
+const formatDateToSpanish = (dateStr) => {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  const meses = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+  return `${date.getDate()}-${meses[date.getMonth()]}-${date.getFullYear()}`;
+};
+
 // Función para calcular la edad a partir de la fecha de nacimiento
 const calculateAge = (birthDateStr) => {
   if (!birthDateStr) return "";
@@ -36,7 +47,7 @@ const generateConsultaText = (consulta, index) => {
 Fecha de Consulta: ${formatDateForInput(consulta.FechaConsulta)}
 Motivo de Consulta: ${consulta.MotivoConsulta}
 Diagnóstico: ${consulta.Diagnostico}
-Rp.: ${consulta.Rp}
+Tratamiento: ${consulta.Tratamiento}
 Antecedentes Familiares: ${consulta.AntecedentesFamiliares}
 Enfermedades Oculares Previas: ${consulta.EnfermedadesOcularesPrevias}
 Prescripción de Lentes: ${consulta.PrescripcionLentes}
@@ -48,7 +59,7 @@ Campo Visual: ${consulta.CampoVisual}
 Fondo de Ojo: ${consulta.FondoDeOjo}
 Tratamientos Previos: ${consulta.TratamientosPrevios}
 Medicamentos Recetados: ${consulta.MedicamentosRecetados}
-Indicaciones: ${consulta.Indicaciones}
+Recomendaciones Médicas: ${consulta.RecomendacionesMedicas}
 Próximo Control: ${formatDateForInput(consulta.ProximoControl)}
 Tomografía de Retina: ${consulta.TomografiaRetina}
 Ecografía Ocular: ${consulta.EcografiaOcular}
@@ -65,6 +76,7 @@ const HistoriaMedica = () => {
     FechaConsulta: new Date().toISOString().split("T")[0],
     MotivoConsulta: "",
     Diagnostico: "",
+    Tratamiento: "",
     AntecedentesFamiliares: "",
     EnfermedadesOcularesPrevias: "",
     PrescripcionLentes: "",
@@ -76,7 +88,7 @@ const HistoriaMedica = () => {
     FondoDeOjo: "",
     TratamientosPrevios: "",
     MedicamentosRecetados: "",
-    Indicaciones: "",
+    RecomendacionesMedicas: "",
     ProximoControl: "",
     TomografiaRetina: "",
     EcografiaOcular: "",
@@ -84,8 +96,29 @@ const HistoriaMedica = () => {
     OjoIzquierdoEstado: "",
     NivelDolor: "",
     Observaciones: "",
+    RpNombre: "",
+    RpConcentracion: "",
+    RpVia: "",
+    RpFrecuencia: "",
+    RpDuracion: "",
+    LejosODEsfera: "",
+    LejosOIEsfera: "",
+    LejosODCilindro: "",
+    LejosOICilindro: "",
+    LejosODEje: "",
+    LejosOIEje: "",
+    LejosODAv: "",
+    LejosOIAv: "",
+    CercaODADD: "",
+    CercaOIADD: "",
+    CercaODAVCC: "",
+    CercaOIAVCC: "",
+    TipoLente: "",
+    AlturaLente: "",
+    DIP: "",
+    Filtro: ""
   });
-
+ 
   // Estado para el formulario temporal de medicamento
   const [medTemp, setMedTemp] = useState({
     nombre: "",
@@ -121,29 +154,30 @@ const HistoriaMedica = () => {
     setMedTemp((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Agregar medicamento: se concatena la información al campo "Indicaciones" con un salto de línea
+  // Agregar medicamento: se concatena la información al campo "Observaciones" con un salto de línea
   const handleAddMedicamento = () => {
     if (!medTemp.nombre) {
       window.alert("Ingrese el nombre del medicamento");
       return;
     }
-    const medString = `Medicamento: ${medTemp.nombre}; Concentración: ${medTemp.concentracion}; Vía: ${medTemp.via}; Frecuencia: ${medTemp.frecuencia}; Duración: ${medTemp.duracion} ${medTemp.unidad}`;
+    const medString = `-Medicamento: ${medTemp.nombre}; Concentración: ${medTemp.concentracion}; Vía: ${medTemp.via}; Frecuencia: ${medTemp.frecuencia}; Duración: ${medTemp.duracion} ${medTemp.unidad}`;
     setFormData((prev) => ({
       ...prev,
-      Indicaciones: prev.Indicaciones
-        ? `${prev.Indicaciones}\n${medString}`
+      Observaciones: prev.Observaciones
+        ? `${prev.Observaciones}\n\n${medString}`
         : medString,
     }));
     // Limpiar el formulario temporal
     setMedTemp({
       nombre: "",
       concentracion: "",
-      via: "",
+      via: "Gotas",
       frecuencia: "",
       duracion: "",
       unidad: "",
     });
   };
+  
 
   // Función para manejar cambios en el campo de búsqueda de paciente
   const handleBuscarPaciente = (e) => {
@@ -203,8 +237,10 @@ const HistoriaMedica = () => {
       window.alert("El campo Próximo Control es obligatorio. Por favor, complételo.");
       return;
     }
+    // Si no se ingresa tratamiento, se envía como cadena vacía
     const dataToSend = {
       ...formData,
+      Tratamiento: formData.Tratamiento || "",
       FechaConsulta: formatDateForInput(formData.FechaConsulta),
     };
 
@@ -217,6 +253,7 @@ const HistoriaMedica = () => {
             FechaConsulta: new Date().toISOString().split("T")[0],
             MotivoConsulta: "",
             Diagnostico: "",
+            Tratamiento: "",
             AntecedentesFamiliares: "",
             EnfermedadesOcularesPrevias: "",
             PrescripcionLentes: "",
@@ -228,7 +265,7 @@ const HistoriaMedica = () => {
             FondoDeOjo: "",
             TratamientosPrevios: "",
             MedicamentosRecetados: "",
-            Indicaciones: "",
+            RecomendacionesMedicas: "",
             ProximoControl: "",
             TomografiaRetina: "",
             EcografiaOcular: "",
@@ -275,7 +312,7 @@ const HistoriaMedica = () => {
         <strong>Diagnóstico:</strong> {consulta.Diagnostico}
       </p>
       <p>
-        <strong>Rp.:</strong> {consulta.Rp}
+        <strong>Tratamiento:</strong> {consulta.Tratamiento}
       </p>
       <p>
         <strong>Antecedentes Familiares:</strong> {consulta.AntecedentesFamiliares}
@@ -311,7 +348,7 @@ const HistoriaMedica = () => {
         <strong>Medicamentos Recetados:</strong> {consulta.MedicamentosRecetados}
       </p>
       <p>
-        <strong>Indicaciones:</strong> {consulta.Indicaciones}
+        <strong>Recomendaciones Médicas:</strong> {consulta.RecomendacionesMedicas}
       </p>
       <p>
         <strong>Próximo Control:</strong> {formatDateForInput(consulta.ProximoControl)}
@@ -338,24 +375,47 @@ const HistoriaMedica = () => {
   );
 
   // Manejador para exportar el informe completo a Word usando la plantilla "InformeMedico.docx"
-  const handleExportToWord = async () => {
-    if (!paciente) {
-      window.alert("No hay información de paciente para exportar.");
-      return;
-    }
-    const datosInforme = {
-      nombre: `${paciente.nombre} ${paciente.segundoNombre} ${paciente.primerApellido} ${paciente.segundoApellido}`,
-      numeroDocumento: paciente.numeroDocumento,
-      direccion: paciente.direccion,
-      sexo: paciente.sexo,
-      fechaNacimiento: formatDateForInput(paciente.fechaNacimiento),
-      edad: calculateAge(paciente.fechaNacimiento),
-      historial: historiaMedica
-        .map((consulta, index) => generateConsultaText(consulta, index))
-        .join("\n\n"),
-    };
-    exportToWord(datosInforme, "InformeMedico.docx");
+// Manejador para exportar el informe completo a Word usando la plantilla "InformeMedico.docx"
+const handleExportToWord = async () => {
+  if (!paciente) {
+    window.alert("No hay información de paciente para exportar.");
+    return;
+  }
+  if (historiaMedica.length === 0) {
+    window.alert("No hay consultas disponibles para generar el informe.");
+    return;
+  }
+
+  // Obtener la última consulta registrada
+  const ultimaConsulta = historiaMedica[0];
+
+  // Función para formatear la fecha en español
+  const formatDateToSpanish = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    const meses = [
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+    return `${date.getDate()}-${meses[date.getMonth()]}-${date.getFullYear()}`;
   };
+
+  const datosInforme = {
+    nombre: `${paciente.nombre} ${paciente.segundoNombre} ${paciente.primerApellido} ${paciente.segundoApellido}`,
+    sexo: paciente.sexo,
+    tipoDocumento: paciente.tipoDocumento,
+    numeroDocumento: paciente.numeroDocumento,
+    edad: calculateAge(paciente.fechaNacimiento),
+    estadoResidencia: paciente.estadoResidencia,
+    ciudad: paciente.ciudad,
+    direccion: paciente.direccion,
+    telefono: paciente.telefono,
+    MotivoConsulta: ultimaConsulta.MotivoConsulta || "No registrado",
+    FechaConsulta: formatDateToSpanish(ultimaConsulta.FechaConsulta) || "No registrada",
+  };
+
+  exportToWord(datosInforme, "InformeMedico.docx");
+};
 
   // Manejador para exportar la receta médica a Word usando la plantilla "RecipeMedico.docx"
   const handleExportToRecipeMedico = async () => {
@@ -368,19 +428,83 @@ const HistoriaMedica = () => {
       return;
     }
     const consulta = historiaMedica[selectedConsultaIndex];
-    // Para la receta, se utiliza el contenido ya concatenado en Indicaciones
+    // Para la receta, se utiliza el contenido ya concatenado en RecomendacionesMedicas
     const datosReceta = {
       nombre: `${paciente.nombre} ${paciente.segundoNombre} ${paciente.primerApellido} ${paciente.segundoApellido}`,
       numeroDocumento: paciente.numeroDocumento,
       direccion: paciente.direccion,
-      fechaConsulta: formatDateForInput(consulta.FechaConsulta),
-      Rp: consulta.Rp, // No se usa, ya que Indicaciones contiene la info
-      Indicaciones: consulta.Indicaciones,
-      proximoControl: formatDateForInput(consulta.ProximoControl),
+      fechaConsulta: formatDateToSpanish(consulta.FechaConsulta),
+      Rp: consulta.Rp, // No se usa, ya que RecomendacionesMedicas contiene la info
+      RecomendacionesMedicas: consulta.RecomendacionesMedicas,
+      proximoControl: formatDateToSpanish(consulta.ProximoControl),
       observaciones: consulta.Observaciones,
     };
     exportToWord(datosReceta, "RecipeMedico.docx");
   };
+
+  // Manejador FormulaLentes.docx
+
+  const handleExportToFormulaLentes = async () => {
+    if (!paciente) {
+      window.alert("No hay información de paciente para exportar.");
+      return;
+    }
+    if (historiaMedica.length === 0) {
+      window.alert("No hay consultas disponibles para generar la fórmula de lentes.");
+      return;
+    }
+  
+    const consulta = historiaMedica[selectedConsultaIndex];
+  
+    // Función para calcular la edad en años
+    const calculateAge = (birthDateStr) => {
+      if (!birthDateStr) return "";
+      const birthDate = new Date(birthDateStr);
+      const now = new Date();
+      let years = now.getFullYear() - birthDate.getFullYear();
+      if (
+        now.getMonth() < birthDate.getMonth() ||
+        (now.getMonth() === birthDate.getMonth() && now.getDate() < birthDate.getDate())
+      ) {
+        years--; // Ajuste si aún no ha pasado el cumpleaños este año
+      }
+      return `${years} años`;
+    };
+  
+    const datosFormulaLentes = {
+      // Datos del paciente
+      nombre: paciente.nombre,
+      segundoNombre: paciente.segundoNombre,
+      primerApellido: paciente.primerApellido,
+      segundoApellido: paciente.segundoApellido,
+      numeroDocumento: paciente.numeroDocumento,
+      edad: calculateAge(paciente.fechaNacimiento), // Ahora solo muestra "X años"
+  
+      // Datos de la consulta
+      FechaConsulta: formatDateForInput(consulta.FechaConsulta),
+      LejosODEsfera: consulta.LejosODEsfera,
+      LejosODCilindro: consulta.LejosODCilindro,
+      LejosODEje: consulta.LejosODEje,
+      LejosODAv: consulta.LejosODAv,
+      LejosOIEsfera: consulta.LejosOIEsfera,
+      LejosOICilindro: consulta.LejosOICilindro,
+      LejosOIEje: consulta.LejosOIEje,
+      LejosOIAv: consulta.LejosOIAv,
+      CercaODADD: consulta.CercaODADD,
+      CercaODAVCC: consulta.CercaODAVCC,
+      CercaOIADD: consulta.CercaOIADD,
+      CercaOIAVCC: consulta.CercaOIAVCC,
+      TipoLente: consulta.TipoLente,
+      AlturaLente: consulta.AlturaLente,
+      DIP: consulta.DIP,
+      Filtro: consulta.Filtro,
+    };
+  
+    exportToWord(datosFormulaLentes, "FormulaLentes.docx");
+  };
+  
+  
+  
 
   return (
     <div>
@@ -426,16 +550,21 @@ const HistoriaMedica = () => {
           <p>
             <strong>Edad:</strong> {calculateAge(paciente.fechaNacimiento)}
           </p>
+          
+                  <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+          <button onClick={handleExportToRecipeMedico} className="menu-button">
+            Exportar Recipe Medico a Word
+          </button>
+
           <button onClick={handleExportToWord} className="menu-button">
             Exportar Informe Medico a Word
           </button>
-          <button
-            onClick={handleExportToRecipeMedico}
-            className="menu-button"
-            style={{ marginLeft: "1rem" }}
-          >
-            Exportar Recipe Medico a Word
+
+          <button onClick={handleExportToFormulaLentes} className="menu-button">
+            Exportar Fórmula de Lentes a Word
           </button>
+</div>
+
         </div>
       )}
 
@@ -493,7 +622,10 @@ const HistoriaMedica = () => {
             <label>Diagnóstico:</label>
             <input type="text" name="Diagnostico" value={formData.Diagnostico} onChange={handleChange} />
 
-            {/* Sección para ingresar medicamentos y agregarlos a Indicaciones */}
+            <label>Tratamiento:</label>
+            <input type="text" name="Tratamiento" value={formData.Tratamiento} onChange={handleChange} />
+
+            {/* Sección para ingresar medicamentos y agregarlos a Recomendaciones Médicas */}
             <fieldset style={{ border: "1px solid #ccc", padding: "1rem", marginBottom: "1rem" }}>
               <legend>Agregar Medicamento</legend>
               <label>Nombre del Medicamento:</label>
@@ -661,11 +793,11 @@ const HistoriaMedica = () => {
               onChange={handleChange}
             />
 
-            <label>Indicaciones:</label>
+            <label>Recomendaciones Médicas:</label>
             <input
               type="text"
-              name="Indicaciones"
-              value={formData.Indicaciones}
+              name="RecomendacionesMedicas"
+              value={formData.RecomendacionesMedicas}
               onChange={handleChange}
             />
 
@@ -716,6 +848,147 @@ const HistoriaMedica = () => {
               value={formData.NivelDolor}
               onChange={handleChange}
             />
+        <h2>Fórmula  de Lentes</h2>
+            {/* Datos del Ojo Derecho */}
+            <h3>Ojo Derecho</h3>
+
+            <label>Lejos OD Esfera:</label>
+            <input
+              type="text"
+              name="LejosODEsfera"
+              value={formData.LejosODEsfera}
+              onChange={handleChange}
+            />
+
+            <label>Lejos OD Cilindro:</label>
+            <input
+              type="text"
+              name="LejosODCilindro"
+              value={formData.LejosODCilindro}
+              onChange={handleChange}
+            />
+
+            <label>Lejos OD Eje:</label>
+            <input
+              type="text"
+              name="LejosODEje"
+              value={formData.LejosODEje}
+              onChange={handleChange}
+            />
+
+            <label>Lejos OD AV:</label>
+            <input
+              type="text"
+              name="LejosODAv"
+              value={formData.LejosODAv}
+              onChange={handleChange}
+            />
+
+            <label>Cerca OD ADD:</label>
+            <input
+              type="text"
+              name="CercaODADD"
+              value={formData.CercaODADD}
+              onChange={handleChange}
+            />
+
+            <label>Cerca OD AVCC:</label>
+            <input
+              type="text"
+              name="CercaODAVCC"
+              value={formData.CercaODAVCC}
+              onChange={handleChange}
+            />
+
+            {/* Datos del Ojo Izquierdo */}
+            <h3>Ojo Izquierdo</h3>
+
+            <label>Lejos OI Esfera:</label>
+            <input
+              type="text"
+              name="LejosOIEsfera"
+              value={formData.LejosOIEsfera}
+              onChange={handleChange}
+            />
+
+            <label>Lejos OI Cilindro:</label>
+            <input
+              type="text"
+              name="LejosOICilindro"
+              value={formData.LejosOICilindro}
+              onChange={handleChange}
+            />
+
+            <label>Lejos OI Eje:</label>
+            <input
+              type="text"
+              name="LejosOIEje"
+              value={formData.LejosOIEje}
+              onChange={handleChange}
+            />
+
+            <label>Lejos OI AV:</label>
+            <input
+              type="text"
+              name="LejosOIAv"
+              value={formData.LejosOIAv}
+              onChange={handleChange}
+            />
+
+            <label>Cerca OI ADD:</label>
+            <input
+              type="text"
+              name="CercaOIADD"
+              value={formData.CercaOIADD}
+              onChange={handleChange}
+            />
+
+            <label>Cerca OI AVCC:</label>
+            <input
+              type="text"
+              name="CercaOIAVCC"
+              value={formData.CercaOIAVCC}
+              onChange={handleChange}
+            />
+
+            {/* Configuración de Lente */}
+            <h3>Configuración de Lente</h3>
+
+            <label>Tipo de Lente:</label>
+            <select name="TipoLente" value={formData.TipoLente} onChange={handleChange}>
+              <option value="">Seleccione una opción</option>
+              <option value="Visión sencilla">Visión sencilla</option>
+              <option value="Bifocal">Bifocal</option>
+              <option value="Multifocal">Multifocal</option>
+              <option value="Alto índice">Alto índice</option>
+              <option value="Otros">Otros</option>
+            </select>
+
+            <label>Altura del Lente:</label>
+            <input
+              type="text"
+              name="AlturaLente"
+              value={formData.AlturaLente}
+              onChange={handleChange}
+            />
+
+            <label>DIP:</label>
+            <input
+              type="text"
+              name="DIP"
+              value={formData.DIP}
+              onChange={handleChange}
+            />
+
+            <label>Filtro:</label>
+            <select name="Filtro" value={formData.Filtro} onChange={handleChange}>
+              <option value="">Seleccione una opción</option>
+              <option value="Antireflejo">Antireflejo</option>
+              <option value="Filtro azul">Filtro azul</option>
+              <option value="Fotosensible">Fotosensible</option>
+              <option value="Otros">Otros</option>
+            </select>
+
 
             <label>Observaciones:</label>
             <textarea
