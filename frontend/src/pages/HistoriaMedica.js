@@ -432,6 +432,8 @@ const handleExportToWord = async () => {
     const datosReceta = {
       nombre: `${paciente.nombre} ${paciente.segundoNombre} ${paciente.primerApellido} ${paciente.segundoApellido}`,
       numeroDocumento: paciente.numeroDocumento,
+      estadoResidencia: paciente.estadoResidencia,
+      ciudad: paciente.ciudad,
       direccion: paciente.direccion,
       fechaConsulta: formatDateToSpanish(consulta.FechaConsulta),
       Rp: consulta.Rp, // No se usa, ya que RecomendacionesMedicas contiene la info
