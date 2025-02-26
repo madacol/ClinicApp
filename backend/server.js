@@ -22,6 +22,7 @@ app.use(express.json());
 })();
 
 // Importa las rutas de la API
+app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/pacientes', require('./routes/pacienteRoutes'));
 app.use('/api/historia-medica', require('./routes/historiaRoutes'));
 app.use('/api/medicos', require('./routes/medicoRoutes'));
